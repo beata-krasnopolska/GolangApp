@@ -1,74 +1,44 @@
 package handlers
 
 import (
+	"myapp/pkg/config"
+	"myapp/pkg/models"
 	"myapp/pkg/render"
 	"net/http"
 )
 
-//in order function handle requests from browser it has to have 2 parameters: w http.ResponseWriter, r *http.Request
+// Repo the repository used by the handlers
+var Repo *Repository
 
-func Home(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, "home.page.html")
+// Repository is the repository type
+type Repository struct {
+	App *config.AppConfig
 }
 
-func About(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, "about.page.html")
+// NewRepo creates a new repository
+func NewRepo(a *config.AppConfig) *Repository {
+	return &Repository{
+		App: a,
+	}
 }
 
-//this method was moved to separate file render.go and is modified here left just for comaprison
-// package lever variable for template cache
-// var tc = make(map[string]*template.Template)
+// NewHandlers sets the reporitory for the handlers
+func NewHandlers(r *Repository) {
+	Repo = r
+}
 
-// func renderTemplateTest(w http.ResponseWriter, tmpl string) {
-// 	parsedTemplate, _ := template.ParseFiles("./templates/"+tmpl, "./templates/base.layout.html")
-// 	err := parsedTemplate.Execute(w, nil)
+// Home is the home page handler
+func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, "home.page.html", &models.TemplateData{})
+}
 
-// 	if err != nil {
-// 		fmt.Println("error parsing template: ", err)
-// 		return
-// 	}
-// }
+// About is the about page handler
+func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
+	// preform some logic
+	stringMap := make(map[string]string)
+	stringMap["test"] = "Hello, again on ABOUT PAGE"
 
-// func RenderTemplateNanana(w http.ResponseWriter, t string) {
-// 	var tmpl *template.Template
-// 	var err error
-
-// 	// check to see if we alredy have the template in our chache
-// 	_, inMap := tc[t]
-// 	if !inMap {
-// 		// need to create the template
-// 		log.Println("Creating template and adding to cache")
-// 		err = createTemplateCache(t)
-// 		if err != nil {
-// 			log.Println(err)
-// 		}
-// 	} else {
-// 		// we have the templete in the cache
-// 		log.Println("using cached template")
-// 	}
-
-// 	tmpl = tc[t]
-
-// 	err = tmpl.Execute(w, nil)
-// 	if err != nil {
-// 		log.Println(err)
-// 	}
-// }
-
-// func createTemplateCache(t string) error {
-// 	templates := []string{
-// 		fmt.Sprintf("./templates/%s", t),
-// 		"./templates/base.layout.html",
-// 	}
-
-// 	// parse the template
-// 	tmpl, err := template.ParseFiles(templates...)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// add template to cache
-// 	tc[t] = tmpl
-
-// 	return nil
-// }
+	render.RenderTemplate(w, "about.page.html", &models.TemplateData{
+		StringMap: stringMap,
+	})
+}
