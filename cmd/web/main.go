@@ -7,13 +7,29 @@ import (
 	"myapp/pkg/handlers"
 	"myapp/pkg/render"
 	"net/http"
+	"time"
+
+	"github.com/alexedwards/scs/v2"
 )
 
 const portNumber = ":8080"
 
+var app config.AppConfig
+
+var session *scs.SessionManager
+
 func main() {
 
-	var app config.AppConfig
+	//change this to true when in production
+	app.InProduction = false
+
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+	session.Cookie.Persist = true
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	session.Cookie.Secure = app.InProduction //in production we want it to be true
+
+	app.Session = session
 
 	//get template cache
 	tc, err := render.CreateTemplateCache()
